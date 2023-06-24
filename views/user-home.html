@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vaccination Centres</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Your+Font+Here');
+
+    .loading {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 100px;
+      font-family: 'Your Font Here', sans-serif;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative; /* Added position relative for button positioning */
+    }
+
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .card p {
+      margin: 0;
+    }
+
+    .no-centres {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 20px;
+      font-family: 'Your Font Here', sans-serif;
+    }
+
+    .book-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Your Font Here', sans-serif;
+      cursor: pointer;
+    }
+
+    .booked {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .search-container {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .search-bar {
+      padding: 8px 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: 'Your Font Here', sans-serif;
+    }
+
+    .logout-button {
+      padding: 8px 16px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Your Font Here', sans-serif;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Loading vaccination centre details...</div>
+
+  <div class="search-container">
+    <input type="text" id="searchBar" class="search-bar" placeholder="Search vaccination centres..." />
+  </div>
+
+  <div id="vaccinationCentres"></div>
+  <div id="noCentres" class="no-centres">No vaccination centres available.</div>
+
+  <button id="logoutButton" class="logout-button">Logout</button>
+  <script>
+    const accessToken = localStorage.getItem("accessToken");      
+    const logoutButton = document.getElementById("logoutButton");
+logoutButton.addEventListener("click", async () => {
+  try {
+    const response = await fetch("/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      credentials: "include"
+    });
+
+    if (response.ok) {
+      // Logout successful, redirect to login page or perform other actions
+      window.location.href = "/user-login"; // Replace with your login page URL
+    } else {
+      // Logout failed, handle error
+      console.error("Logout failed:", response.statusText);
+    }
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+});
+
+
+
+
+
+    // Function to fetch vaccination centre details
+    const fetchVaccinationCentres = () => {
+    
+      const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      };
+
+      fetch("/vaccinationCentres", { headers })
+        .then(response => response.json())
+        .then(data => {
+          const loading = document.getElementById("loading");
+          const vaccinationCentresContainer = document.getElementById("vaccinationCentres");
+          const noCentres = document.getElementById("noCentres");
+
+          if (data.length > 0) {
+            // Display vaccination centre details
+            vaccinationCentresContainer.innerHTML = "";
+            data.forEach(centre => {
+              const card = document.createElement("div");
+              card.classList.add("card");
+
+              const name = document.createElement("h3");
+              name.textContent = centre.name;
+
+              const area = document.createElement("p");
+              area.textContent = `Area: ${centre.area}`;
+
+              const availableSlots = document.createElement("p");
+              availableSlots.textContent = `Available Slots: ${centre.availableSlots}`;
+
+              const bookButton = document.createElement("button");
+              bookButton.textContent = "BOOK";
+              bookButton.classList.add("book-button");
+
+              // Add event listener to book button
+              bookButton.addEventListener("click", async() => {
+                await bookSlot(centre._id);
+                fetchVaccinationCentres();
+                
+                
+              });
+
+              card.appendChild(name);
+              card.appendChild(area);
+              card.appendChild(availableSlots);
+              card.appendChild(bookButton);
+
+              vaccinationCentresContainer.appendChild(card);
+            });
+
+            noCentres.style.display = "none";
+          } else {
+            // Display message for no vaccination centres
+            vaccinationCentresContainer.innerHTML = "";
+            noCentres.style.display = "block";
+          }
+
+          // Hide loading message
+          loading.style.display = "none";
+        })
+        .catch(error => {
+          console.error(error);
+          // Display error message
+          const loading = document.getElementById("loading");
+          loading.textContent = "Failed to fetch vaccination centre details.";
+        });
+    };
+
+    // Function to refresh access token
+    const refreshAccessToken = async () => {
+      try {
+        const accessToken = localStorage.getItem("accessToken");
+        const headers = {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`
+        };
+
+        // Send the refresh token request with the appropriate headers
+        const response = await fetch("/refresh", {
+          method: "GET",
+          headers,
+          credentials: "include"
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to refresh access token");
+        }
+
+        const data = await response.json();
+        const newAccessToken = data.accessToken;
+        console.log("New acc tok: ", newAccessToken);
+        localStorage.setItem("accessToken", newAccessToken);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    // Function to book a slot
+    const bookSlot = (centreId) => {
+      const accessToken = localStorage.getItem("accessToken");
+      const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      };
+
+      fetch(`/vaccinationCentres/book/${centreId}`, {
+        method: "POST",
+        headers
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log("Slot booked successfully:", data);
+          // Redirect to booking-screen.html
+          window.location.href = "booking-screen.html";
+        })
+        .catch(error => {
+          console.error("Failed to book slot:", error);
+        });
+    };
+
+    // Initial fetch of vaccination centre details
+    fetchVaccinationCentres();
+
+    // Refresh access token every 50 seconds
+    setInterval(refreshAccessToken, 50000);
+
+    // Fetch vaccination centre details every 5 minutes
+    setInterval(fetchVaccinationCentres, 300000);
+  </script>
+</body>
+</html>

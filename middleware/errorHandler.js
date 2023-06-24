@@ -9,6 +9,7 @@ const errorHandler = (err, req, res, next) => {
     origin: req.headers.origin,
     file: "errLogs.txt",
   });
+  
   next();
 };
 module.exports = errorHandler;

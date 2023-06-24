@@ -12,4 +12,27 @@ router.get("/navi(.html)?", (req, res) => {
   console.log(res.statusCode);
 });
 
+router.get('/user-signup(.html)?', (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "views", 'user-signup.html'));
+});
+
+router.get('/user-login(.html)?', (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "views", 'user-login.html'));
+});
+
+router.get('/user-home(.html)?', (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "views", 'user-home.html'));
+});
+
+router.get('/admin-login(.html)?', (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "views", 'admin-login.html'));
+});
+
+
+router.get('/admin-home(.html)?', (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "views", 'admin-home.html'));
+});
+
+
+
 module.exports = router;

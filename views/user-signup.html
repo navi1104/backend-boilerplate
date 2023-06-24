@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Form</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap');
+
+    #snackbar {
+        visibility: hidden; /* Hidden by default. Visible on click */
+        min-width: 250px; /* Set a default minimum width */
+        margin-left: -125px; /* Divide value of min-width by 2 */
+        background-color: #333; /* Black background color */
+        color: #fff; /* White text color */
+        text-align: center; /* Centered text */
+        border-radius: 2px; /* Rounded borders */
+        padding: 16px; /* Padding */
+        position: fixed; /* Sit on top of the screen */
+        z-index: 1; /* Add a z-index if needed */
+        left: 50%; /* Center the snackbar */
+        bottom: 30px; /* 30px from the bottom */
+      }
+      
+      /* Show the snackbar when clicking on a button (class added with JavaScript) */
+      #snackbar.show {
+        visibility: visible; /* Show the snackbar */
+        /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+        However, delay the fade out process for 2.5 seconds */
+        -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+      }
+      
+      /* Animations to fade the snackbar in and out */
+      @-webkit-keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @keyframes fadein {
+        from {bottom: 0; opacity: 0;}
+        to {bottom: 30px; opacity: 1;}
+      }
+      
+      @-webkit-keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+      
+      @keyframes fadeout {
+        from {bottom: 30px; opacity: 1;}
+        to {bottom: 0; opacity: 0;}
+      }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .card {
+      width: 400px;
+      padding: 40px;
+      background-color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 24px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #4285F4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #3367D6;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.3);
+    }
+  </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+          <h1>User Registration Form</h1>
+          <form id="signup-form">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+              <label for="aadhar">Aadhar Number</label>
+              <input type="text" id="aadhar" name="aadhar" placeholder="Enter your Aadhar number">
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" placeholder="Enter your password">
+            </div>
+            <button class="btn" type="submit">Submit</button>
+          </form>
+          <div id="snackbar">Some text some message..</div>
+        </div>
+      </div>
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const form = document.getElementById("signup-form");
+          form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const username = document.getElementById("username").value;
+            const aadhar = document.getElementById("aadhar").value;
+            const password = document.getElementById("password").value;
+    
+            try {
+              // Step 1: Register the user
+              const registerResponse = await fetch("http://localhost:3500/register", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ user: username, aadhar: aadhar, pwd: password }),
+              });
+    
+              if (!registerResponse.ok) {
+                // Registration error
+                const error = await registerResponse.text();
+                showSnackbar(error, "red");
+                
+              }
+              else{
+                const error = await registerResponse.text();
+                showSnackbar("Registration successful", "green");
+              }
+    
+              // Step 2: Log in the user
+              const loginResponse = await fetch("http://localhost:3500/login", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({ user: username, pwd: password }),
+              });
+    
+              if (!(loginResponse.ok)) {
+                // Login error
+                const error = await loginResponse.text();
+                showSnackbar(error, "red");
+                return;
+              }
+              else{
+
+
+              console.log("Bout to fetch access token")
+              // Step 3: Extract the access token from the response
+              const { accessToken } = await loginResponse.json();
+              console.log("access token: ",accessToken)
+              // Step 4: Save the access token in local storage or a cookie
+              // Here, we are storing it in local storage for simplicity
+              localStorage.setItem("accessToken", accessToken);
+             
+    
+              // Step 5: Redirect the user to the user-home.html page
+              window.location.href = "user-home.html";
+
+              }
+               
+            } catch (error) {
+              console.error(error);
+              showSnackbar("An error occurred", "red");
+            }
+          });
+    
+          function showSnackbar(content,color) {
+            // Get the snackbar DIV
+            var x = document.getElementById("snackbar");
+            x.textContent = content
+            x.style.backgroundColor = color
+          
+            // Add the "show" class to DIV
+            x.className = "show";
+          
+            // After 3 seconds, remove the show class from DIV
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+          }
+        });
+      </script>
+</body>
+</html>

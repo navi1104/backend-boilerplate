@@ -14,6 +14,7 @@ const loginUser = async (req, res) => {
     res.status(400).json({ mesage: "Enter both username and Password" });
     exit(1);
   }
+  
 
   const foundUser = await User.findOne({ username: user });
   if (!foundUser) {
@@ -22,7 +23,7 @@ const loginUser = async (req, res) => {
   const match = await bcrypt.compare(req.body.pwd, foundUser.password);
 
   if (match) {
-    console.log("roghtafter match:", foundUser);
+    console.log("rightafter match:", foundUser);
     const roles = Object.values(foundUser.roles);
     const accessToken = jwt.sign(
       {
@@ -32,7 +33,7 @@ const loginUser = async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "60s" }
+      { expiresIn: "1800s" }
     );
     const refreshToken = await jwt.sign(
       { username: foundUser.username },
@@ -43,18 +44,19 @@ const loginUser = async (req, res) => {
     foundUser.refreshToken = refreshToken;
     console.log(refreshToken);
 
-    await User.update(
+    await User.updateOne(
       { username: req.body.user },
       { refreshToken: refreshToken }
     );
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
       sameSite: "None",
-      secure: true,
+      secure: false,
       maxAge: 24 * 60 * 60 * 1000,
     });
 
     res.json({ accessToken });
+    console.log("access token: ",accessToken)
   } else {
     return res.status(401);
   }

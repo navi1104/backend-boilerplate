@@ -37,3 +37,17 @@ undefined  /employees - GET, Date: 20220821	18:55:42, id: 25fe9747-254e-4946-86f
 undefined  /employees - GET, Date: 20220821	18:56:29, id: d93f5052-b053-4e00-823b-bb7c5d70baa7
 undefined  /employees - GET, Date: 20220821	19:05:39, id: 743ad9c6-64d7-4d6c-b130-593cedc5d514
 undefined  /employees - GET, Date: 20220821	19:05:40, id: e388d5bb-8d6a-4c18-a822-005584746e17
+undefined  /user-signup - GET, Date: 20230624	01:08:50, id: f2065aa8-9c4b-4f36-9555-21d302a9aaf9
+undefined  /user-signup - GET, Date: 20230624	01:10:18, id: 5503562f-339c-42d8-9aae-80d35d28fd02
+undefined  /user-signup - GET, Date: 20230624	01:10:20, id: 93395cf9-b9be-4deb-a14c-f2bf525d7167
+undefined  /user-signup - GET, Date: 20230624	01:10:20, id: 40d2bb9d-2e6a-4dab-8eda-bcc3463f14e3
+undefined  /user-signup - GET, Date: 20230624	01:10:21, id: a75539b7-b57b-45a7-8c4f-e3f9baff3840
+undefined  /user-signup - GET, Date: 20230624	01:10:21, id: c677932d-3fac-4d49-8b53-ee5995ab4402
+undefined  /user-signup - GET, Date: 20230624	01:10:21, id: 87163d13-d8f1-42bb-b676-30db1c72e882
+undefined  /user-signup - GET, Date: 20230624	01:10:22, id: 833197e4-1bb6-48aa-9cc7-7b960068f5b6
+http://localhost:3500  /register - POST, Date: 20230624	02:30:10, id: 69b0a0db-6dd6-4e21-97b8-e449880722cd
+http://localhost:3500  /register - POST, Date: 20230624	02:30:12, id: 55d420ba-5c71-4975-9ee5-077a0b25219d
+http://localhost:3500  /register - POST, Date: 20230624	02:30:13, id: 938e6fac-ea21-43be-9169-cf27e2f5261b
+http://localhost:3500  /login - POST, Date: 20230624	08:13:43, id: 169fb2ab-e014-4f92-a592-f063b71c44dc
+http://localhost:3500  /login - POST, Date: 20230624	08:15:32, id: 33bb77f2-7084-44c4-9f1c-67a146b82887
+http://localhost:3500  /login - POST, Date: 20230624	08:15:48, id: b619a353-87aa-414b-a4d7-808deb636939

@@ -8,12 +8,17 @@ const userSchema = new Schema({
   },
   roles: {
     User: {
-      type: Number,
-      default: 100,
+      type: String,
+      default: "100",
     },
-    Editor: Number,
-    Admin: Number,
+   
+    Admin: String,
   },
+  aadhar:{
+    type: String,
+    required: true
+  },
+  
   password: {
     type: String,
     required: true,

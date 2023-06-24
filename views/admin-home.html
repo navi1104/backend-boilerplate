@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Home</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      width: 800px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .vaccination-centres {
+      flex-basis: 70%;
+      padding-right: 20px;
+    }
+
+    .vaccination-centre-card {
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+    }
+
+    .vaccination-centre-card h3 {
+      margin: 0;
+    }
+
+    .vaccination-centre-card p {
+      margin: 0;
+    }
+
+    .delete-button {
+      background-color: #ff0000;
+      color: #ffffff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .create-vaccination-centre {
+      flex-basis: 30%;
+    }
+
+    .create-vaccination-centre form {
+      background-color: #f9f9f9;
+      padding: 20px;
+      border-radius: 5px;
+    }
+
+    .create-vaccination-centre form label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .create-vaccination-centre form input[type="text"] {
+      width: 100%;
+      padding: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+
+    .create-vaccination-centre form button {
+      background-color: #007bff;
+      color: #ffffff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="vaccination-centres" id="vaccinationCentresContainer"></div>
+    <div class="create-vaccination-centre" id="createVaccinationCentreContainer">
+      <form id="createVaccinationCentreForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="area">Area:</label>
+        <input type="text" id="area" name="area" required>
+        
+        <button type="submit">Create Vaccination Centre</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const accessToken = localStorage.getItem("accessToken");
+
+function fetchVaccinationCentres() {
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+    };
+
+    fetch("/vaccinationCentres", {
+        headers: headers
+    })
+        .then(response => response.json())
+        .then(vaccinationCentres => {
+            const vaccinationCentresContainer = document.getElementById("vaccinationCentresContainer");
+            vaccinationCentresContainer.innerHTML = ""; // Clear previous content
+
+            vaccinationCentres.forEach(vaccinationCentre => {
+                const card = document.createElement("div");
+                card.classList.add("vaccination-centre-card"); // Update class name
+
+                const name = document.createElement("h3");
+                name.textContent = vaccinationCentre.name;
+                card.appendChild(name);
+
+                const area = document.createElement("p");
+                area.textContent = vaccinationCentre.area;
+                card.appendChild(area);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", () => deleteVaccinationCentre(vaccinationCentre._id));
+                deleteButton.classList.add("delete-button"); // Add class name
+                card.appendChild(deleteButton);
+
+                vaccinationCentresContainer.appendChild(card);
+            });
+        })
+        .catch(error => console.error("Failed to fetch vaccination centres:", error));
+}
+
+// Function to create a new vaccination centre
+function createVaccinationCentre(event) {
+    event.preventDefault();
+
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+    };
+
+    const nameInput = document.getElementById("name");
+    const areaInput = document.getElementById("area");
+
+    const data = {
+        name: nameInput.value,
+        area: areaInput.value
+    };
+
+    fetch("/vaccinationCentres", {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            if (response.ok) {
+                nameInput.value = "";
+                areaInput.value = "";
+                fetchVaccinationCentres(); // Refresh the vaccination centres list
+            } else {
+                console.error("Failed to create a new vaccination centre:", response.status);
+            }
+        })
+        .catch(error => console.error("Failed to create a new vaccination centre:", error));
+}
+
+// Function to delete a vaccination centre
+function deleteVaccinationCentre(id) {
+    const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+    };
+
+    fetch(`/vaccinationCentres/${id}`, {
+        method: "DELETE",
+        headers: headers
+    })
+        .then(response => {
+            if (response.ok) {
+                fetchVaccinationCentres(); // Refresh the vaccination centres list
+            } else {
+                console.error("Failed to delete vaccination centre:", response.status);
+            }
+        })
+        .catch(error => console.error("Failed to delete vaccination centre:", error));
+}
+
+// Add event listener to the create vaccination centre form
+const createVaccinationCentreForm = document.getElementById("createVaccinationCentreForm");
+createVaccinationCentreForm.addEventListener("submit", createVaccinationCentre);
+
+// Fetch vaccination centres on page load
+fetchVaccinationCentres();
+
+  </script>
+</body>
+</html>
